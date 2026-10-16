@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:hint="@string/medicine_name">
+            android:hint="Nombre del medicamento">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editMedicineName"
@@ -117,7 +117,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="@string/change_color" />
+            android:text="Cambiar color principal" />
 
         <!-- Selector de Color Secundario (Para Cápsulas bicolores) -->
         <com.google.android.material.button.MaterialButton
