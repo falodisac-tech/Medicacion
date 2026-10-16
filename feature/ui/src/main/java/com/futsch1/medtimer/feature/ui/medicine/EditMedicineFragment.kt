@@ -1,331 +1,112 @@
 package com.futsch1.medtimer.feature.ui.medicine
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.core.view.size
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.Navigation.findNavController
-import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.futsch1.medtimer.core.common.di.ApplicationScope
-import com.futsch1.medtimer.core.common.di.Dispatcher
-import com.futsch1.medtimer.core.common.di.MedTimerDispatchers
-import com.futsch1.medtimer.core.common.helpers.SimpleIdlingResource
-import com.futsch1.medtimer.core.common.helpers.SwipeHelper
-import com.futsch1.medtimer.core.domain.model.Medicine
-import com.futsch1.medtimer.core.domain.model.Reminder
-import com.futsch1.medtimer.core.domain.repository.MedicineRepository
-import com.futsch1.medtimer.core.domain.repository.ReminderRepository
-import com.futsch1.medtimer.core.ui.MedicineIcons
-import com.futsch1.medtimer.core.ui.component.withTopAppBar
+import androidx.fragment.app.viewModels
 import com.futsch1.medtimer.feature.ui.R
-import com.futsch1.medtimer.feature.ui.medicine.dialogs.NewReminderTypeDialog
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-import com.maltaisn.icondialog.IconDialog
-import com.maltaisn.icondialog.IconDialogSettings
-import com.maltaisn.icondialog.data.Icon
-import com.maltaisn.icondialog.pack.IconPack
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import com.futsch1.medtimer.feature.ui.databinding.FragmentEditMedicineBinding
+import com.skydoves.colorpickerview.ColorPickerDialog
+import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 
-@AndroidEntryPoint
-class EditMedicineFragment : Fragment(), IconDialog.Callback {
-    companion object {
-        private const val ICON_DIALOG_TAG = "icon-dialog"
-    }
+class EditMedicineFragment : Fragment() {
 
-    @Inject
-    @Dispatcher(MedTimerDispatchers.IO)
-    lateinit var ioDispatcher: CoroutineDispatcher
+    private var _binding: FragmentEditMedicineBinding? = null
+    private val binding get() = _binding!!
 
-    @Inject
-    @Dispatcher(MedTimerDispatchers.Main)
-    lateinit var mainDispatcher: CoroutineDispatcher
-
-    @Inject
-    @ApplicationScope
-    lateinit var applicationScope: CoroutineScope
-
-    @Inject
-    lateinit var linkedReminderHandlingFactory: LinkedReminderHandling.Factory
-
-    @Inject
-    lateinit var reminderViewAdapterFactory: ReminderViewAdapter.Factory
-
-    @Inject
-    lateinit var newReminderTypeDialogFactory: NewReminderTypeDialog.Factory
-
-    @Inject
-    lateinit var editMedicineSubmenusFactory: EditMedicineSubmenus.Factory
-
-    @Inject
-    lateinit var editMedicineActionsFactory: EditMedicineActions.Factory
-
-    @Inject
-    lateinit var medicineIcons: MedicineIcons
-
-    @Inject
-    lateinit var linkedReminderAlgorithms: LinkedReminderAlgorithms
-
-    @Inject
-    lateinit var medicineRepository: MedicineRepository
-
-    @Inject
-    lateinit var reminderRepository: ReminderRepository
-
-    private var medicine: Medicine? = null
-    private lateinit var fragmentView: View
-    private var fragmentReady = false
-    // Assigned once the medicine has loaded; the bar renders its actions only from that point on.
-    private var editMedicineActions by mutableStateOf<EditMedicineActions?>(null)
-    private var medicineName by mutableStateOf("")
-
-    private val idlingResource = SimpleIdlingResource(EditMedicineFragment::class.java.name)
-
-    var iconId: Int = 0
-    private lateinit var adapter: ReminderViewAdapter
-    private lateinit var selectIconButton: MaterialButton
-    var notes: String = ""
+    private var selectedPrimaryColor: Int = Color.parseColor("#E53935")
+    private var selectedSecondaryColor: Int = Color.parseColor("#FFFFFF")
+    private var selectedShape: String = "capsule"
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        idlingResource.setBusy()
-        fragmentView = withTopAppBar(
-            inflater.inflate(R.layout.fragment_edit_medicine, container, false),
-            title = { medicineName },
-        ) {
-            editMedicineActions?.let { EditMedicineMenu(it) }
-        }
-
-        // Do not enter fragment just yet, first fetch entity from database and setup UI
-        postponeEnterTransition()
-
-        val navController = findNavController()
-
-        setupSelectIcon()
-        val recyclerView = setupMedicineList()
-        setupSwiping(recyclerView)
-
-        lifecycleScope.launch(ioDispatcher) {
-            val medicine = medicineRepository.fetch(getMedicineId()) ?: return@launch
-
-            this@EditMedicineFragment.medicine = medicine
-
-            withContext(mainDispatcher) {
-                medicineName = medicine.name
-                editMedicineActions = editMedicineActionsFactory.create(medicine, this@EditMedicineFragment, navController)
-
-                // Signal that entity was loaded
-                onMedicineLoaded(medicine)
-            }
-        }
-
-        return fragmentView
+        _binding = FragmentEditMedicineBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    private fun setFragmentReady() {
-        // Only now allow getting data from fragment UI when it is closed
-        fragmentReady = true
-        idlingResource.setIdle()
-        // Now enter fragment
-        startPostponedEnterTransition()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setupInstructionsDropdown()
+        setupShapeToggleGroup()
+        setupColorPickers()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        idlingResource.destroy()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        if (fragmentReady) {
-            applicationScope.launch {
-                val (newMedicine, updatedReminders) = withContext(mainDispatcher) {
-                    Pair(buildMedicine(), collectUpdatedReminders())
-                }
-                reminderRepository.updateMany(updatedReminders)
-                if (medicine != newMedicine && newMedicine != null) {
-                    medicineRepository.update(newMedicine)
-                }
-            }
-        }
-    }
-
-    private fun onMedicineLoaded(medicine: Medicine) {
-        iconId = medicine.iconId
-        notes = medicine.notes
-
-        (requireActivity() as AppCompatActivity).supportActionBar?.title = medicine.name
-        fragmentView.findViewById<EditText>(R.id.editMedicineName).apply {
-            setText(medicine.name)
-        }
-
-        val subMenus = editMedicineSubmenusFactory.create(this, medicine)
-
-        selectIconButton.setIcon(medicineIcons.getIconDrawable(iconId))
-
-        setupMedicineSettings(subMenus)
-        setupNotesButton(subMenus)
-        setupOpenCalendarButton(subMenus)
-        setupStockButton(subMenus)
-        setupTagsButton(subMenus)
-
-        setupAddReminderButton(medicine)
-
-        adapter.setMedicine(medicine)
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            reminderRepository.getAllFlow(getMedicineId()).collect {
-                sortAndSubmitList(it)
-                setFragmentReady()
-            }
-        }
-    }
-
-    private fun setupSelectIcon() {
-        selectIconButton = fragmentView.findViewById(R.id.selectIcon)
-
-        selectIconButton.setOnClickListener {
-            val fragmentManager = getChildFragmentManager()
-            val dialog = fragmentManager.findFragmentByTag(ICON_DIALOG_TAG) as IconDialog?
-            val builder = IconDialogSettings.Builder()
-            builder.showClearBtn = true
-            builder.showSelectBtn = false
-
-            val iconDialog = dialog ?: IconDialog.newInstance(builder.build())
-            iconDialog.selectedIconIds = listOf(iconId)
-            iconDialog.show(fragmentManager, ICON_DIALOG_TAG)
-        }
-    }
-
-    private fun setupMedicineSettings(subMenus: EditMedicineSubmenus) {
-        val openMedicineSettings =
-            fragmentView.findViewById<MaterialButton>(R.id.openMedicineSettings)
-        openMedicineSettings.setOnClickListener {
-            subMenus.open(
-                EditMedicineSubmenus.Submenu.SETTINGS,
-                findNavController(openMedicineSettings)
-            )
-        }
-    }
-
-    private fun setupNotesButton(subMenus: EditMedicineSubmenus) {
-        val openNotes = fragmentView.findViewById<MaterialButton>(R.id.openNotes)
-        openNotes.setOnClickListener {
-            subMenus.open(EditMedicineSubmenus.Submenu.NOTES, findNavController(openNotes))
-        }
-    }
-
-    private fun setupOpenCalendarButton(subMenus: EditMedicineSubmenus) {
-        val openCalendar = fragmentView.findViewById<MaterialButton>(R.id.openCalendar)
-        openCalendar.setOnClickListener {
-            subMenus.open(EditMedicineSubmenus.Submenu.CALENDAR, findNavController(openCalendar))
-        }
-    }
-
-    private fun setupStockButton(subMenus: EditMedicineSubmenus) {
-        val openStockTracking = fragmentView.findViewById<MaterialButton>(R.id.openStockTracking)
-        openStockTracking.setOnClickListener {
-            subMenus.open(
-                EditMedicineSubmenus.Submenu.STOCK_TRACKING,
-                findNavController(openStockTracking)
-            )
-        }
-    }
-
-    private fun setupTagsButton(subMenus: EditMedicineSubmenus) {
-        val openTags = fragmentView.findViewById<MaterialButton>(R.id.openTags)
-        openTags.setOnClickListener {
-            subMenus.open(EditMedicineSubmenus.Submenu.TAGS, findNavController(openTags))
-        }
-    }
-
-    private fun setupMedicineList(): RecyclerView {
-        val recyclerView = fragmentView.findViewById<RecyclerView>(R.id.reminderList)
-        adapter = reminderViewAdapterFactory.create(requireActivity())
-        recyclerView.setAdapter(adapter)
-        recyclerView.setLayoutManager(LinearLayoutManager(recyclerView.context))
-        return recyclerView
-    }
-
-    private fun setupSwiping(recyclerView: RecyclerView) {
-        SwipeHelper.createSwipeHelper(
-            requireContext(),
-            { viewHolder -> deleteItem(viewHolder.itemId, viewHolder.getBindingAdapterPosition()) },
-            null
+    private fun setupInstructionsDropdown() {
+        val instructions = arrayOf(
+            "En ayunas",
+            "Con el desayuno",
+            "Con el almuerzo",
+            "Después de comer",
+            "Antes de dormir",
+            "Sin restricción"
         )
-            .attachToRecyclerView(recyclerView)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, instructions)
+        binding.actvInstruction.setAdapter(adapter)
     }
 
-    private fun setupAddReminderButton(medicine: Medicine) {
-        val fab = fragmentView.findViewById<ExtendedFloatingActionButton>(R.id.addReminder)
-        fab.setOnClickListener { newReminderTypeDialogFactory.create(requireActivity(), medicine) }
-    }
+    private fun setupShapeToggleGroup() {
+        binding.toggleShapeGroup.check(R.id.btnShapeCapsule)
 
-    private fun sortAndSubmitList(reminders: List<Reminder>) {
-        adapter.submitList(linkedReminderAlgorithms.sortRemindersList(reminders))
-    }
-
-    private fun deleteItem(itemId: Long, adapterPosition: Int) {
-        lifecycleScope.launch(ioDispatcher) {
-            val reminder = reminderRepository.fetch(itemId.toInt())
-            if (reminder != null) {
-                withContext(mainDispatcher) {
-                    linkedReminderHandlingFactory.create(reminder, lifecycleScope)
-                        .deleteReminder(requireContext(), { }, {
-                            adapter.notifyItemChanged(adapterPosition)
-                        })
+        binding.toggleShapeGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                when (checkedId) {
+                    R.id.btnShapeCapsule -> {
+                        selectedShape = "capsule"
+                        binding.selectSecondaryColor.visibility = View.VISIBLE
+                    }
+                    R.id.btnShapeRound -> {
+                        selectedShape = "round"
+                        binding.selectSecondaryColor.visibility = View.GONE
+                    }
+                    R.id.btnShapeSyrup -> {
+                        selectedShape = "syrup"
+                        binding.selectSecondaryColor.visibility = View.GONE
+                    }
+                    R.id.btnShapeInjection -> {
+                        selectedShape = "injection"
+                        binding.selectSecondaryColor.visibility = View.GONE
+                    }
                 }
             }
         }
     }
 
-    private fun buildMedicine(): Medicine? {
-        return medicine?.copy(
-            name = fragmentView.findViewById<EditText>(R.id.editMedicineName).text.toString()
-                .trim(),
-            iconId = iconId,
-            notes = notes,
-        )
-    }
+    private fun setupColorPickers() {
+        binding.selectColor.setOnClickListener {
+            ColorPickerDialog.Builder(requireContext())
+                .setTitle("Seleccionar color principal")
+                .setPositiveButton("Aceptar", ColorEnvelopeListener { envelope, _ ->
+                    selectedPrimaryColor = envelope.color
+                    binding.selectColor.setBackgroundColor(envelope.color)
+                })
+                .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }
+                .attachAlphaSlideBar(false)
+                .show()
+        }
 
-    private fun collectUpdatedReminders(): List<Reminder> {
-        val recyclerView = fragmentView.findViewById<RecyclerView>(R.id.reminderList)
-        return (0..<recyclerView.size).map { i ->
-            (recyclerView.getChildViewHolder(recyclerView.getChildAt(i)) as ReminderViewHolder).getUpdatedReminder()
+        binding.selectSecondaryColor.setOnClickListener {
+            ColorPickerDialog.Builder(requireContext())
+                .setTitle("Seleccionar color secundario (mitad cápsula)")
+                .setPositiveButton("Aceptar", ColorEnvelopeListener { envelope, _ ->
+                    selectedSecondaryColor = envelope.color
+                    binding.selectSecondaryColor.setBackgroundColor(envelope.color)
+                })
+                .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }
+                .attachAlphaSlideBar(false)
+                .show()
         }
     }
 
-    private fun getMedicineId(): Int {
-        return EditMedicineFragmentArgs.fromBundle(requireArguments()).medicineId
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
-
-    override val iconDialogIconPack: IconPack
-        get() = medicineIcons.getIconPack()
-
-    override fun onIconDialogCancelled() {
-        // Intentionally empty to suppress default behavior
-    }
-
-    override fun onIconDialogIconsSelected(dialog: IconDialog, icons: List<Icon>) {
-        iconId = icons[0].id
-        selectIconButton.setIcon(medicineIcons.getIconDrawable(iconId))
-    }
-
 }
