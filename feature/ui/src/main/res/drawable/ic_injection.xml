@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+
+    <!-- Aguja metálica -->
+    <path
+        android:strokeColor="#B0BEC5"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M 10,54 L 20,44" />
+
+    <!-- Cuerpo transparente de la jeringa -->
+    <path
+        android:fillColor="#37474F"
+        android:strokeColor="#78909C"
+        android:strokeWidth="1.5"
+        android:pathData="M 18,46 L 40,24 L 46,30 L 24,52 Z" />
+
+    <!-- Líquido / Medicamento interior (Coloreable) -->
+    <path
+        android:name="liquid_injection"
+        android:fillColor="#FB8C00"
+        android:pathData="M 20,44 L 32,32 L 36,36 L 24,48 Z" />
+
+    <!-- Émbolo y soporte superior -->
+    <path
+        android:strokeColor="#CFD8DC"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M 43,27 L 54,16 M 48,10 L 60,22" />
+
+</vector>
