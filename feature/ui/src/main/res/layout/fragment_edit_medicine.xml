@@ -1,162 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".medicine.EditMedicineFragment">
+    android:fillViewport="true">
 
-    <androidx.core.widget.NestedScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <LinearLayout
+        <!-- Nombre del Medicamento -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/editMedicineNameLayout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:orientation="vertical">
+            android:layout_marginBottom="16dp"
+            android:hint="@string/medicine_name">
 
-            <com.google.android.material.card.MaterialCardView
-                style="?attr/materialCardViewElevatedStyle"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editMedicineName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp">
+                android:inputType="textCapWords" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="8dp">
+        <!-- Selector de Forma Física (Iconos Vectoriales) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Forma física del medicamento:"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleShapeGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            android:layout_marginBottom="16dp">
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/selectIcon"
-                            style="?attr/materialIconButtonFilledStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:minWidth="48dp"
-                            android:minHeight="48dp"
-                            app:iconPadding="0dp" />
+            <Button
+                android:id="@+id/btnShapeCapsule"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_pill_capsule"
+                app:iconGravity="textStart"
+                android:text="Cápsula" />
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="4dp"
-                            android:hint="@string/medicine_name">
+            <Button
+                android:id="@+id/btnShapeRound"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_pill_round"
+                app:iconGravity="textStart"
+                android:text="Pastilla" />
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/editMedicineName"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:inputType="text" />
+            <Button
+                android:id="@+id/btnShapeSyrup"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_syrup_bottle"
+                app:iconGravity="textStart"
+                android:text="Jarabe" />
 
-                        </com.google.android.material.textfield.TextInputLayout>
-                    </LinearLayout>
+            <Button
+                android:id="@+id/btnShapeInjection"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_injection"
+                app:iconGravity="textStart"
+                android:text="Inyección" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
 
-                    <LinearLayout
-                        android:id="@+id/medicineMenuButtons"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+        <!-- Condición de Toma (Alimentos / Ayunas) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Instrucción de ingesta:"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp" />
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/openMedicineSettings"
-                            style="?attr/materialIconButtonFilledStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:contentDescription="@string/medicine_settings"
-                            android:minWidth="48dp"
-                            android:minHeight="48dp"
-                            app:icon="@drawable/gear"
-                            app:iconPadding="0dp" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/menuInstructionLayout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Momento de toma">
 
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_height="0dp"
-                            android:layout_weight="1" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/openNotes"
-                            style="?attr/materialIconButtonFilledStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:contentDescription="@string/notes"
-                            android:minWidth="48dp"
-                            android:minHeight="48dp"
-                            app:icon="@drawable/journal_text"
-                            app:iconPadding="0dp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/openTags"
-                            style="?attr/materialIconButtonFilledStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:contentDescription="@string/tags"
-                            android:minWidth="48dp"
-                            android:minHeight="48dp"
-                            app:icon="@drawable/tag"
-                            app:iconPadding="0dp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/openStockTracking"
-                            style="?attr/materialIconButtonFilledStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:contentDescription="@string/medicine_stock"
-                            android:minWidth="48dp"
-                            android:minHeight="48dp"
-                            app:icon="@drawable/box_seam"
-                            app:iconPadding="0dp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/openCalendar"
-                            style="?attr/materialIconButtonFilledStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:contentDescription="@string/calendar"
-                            android:minWidth="48dp"
-                            android:minHeight="48dp"
-                            app:icon="@drawable/calendar_week"
-                            app:iconPadding="0dp" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <TextView
+            <AutoCompleteTextView
+                android:id="@+id/actvInstruction"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:paddingStart="4dp"
-                android:text="@string/reminders"
-                android:textAppearance="?attr/textAppearanceTitleSmall" />
+                android:inputType="none"
+                android:text="En ayunas" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/reminderList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipToPadding="false"
-                android:contentDescription="@string/reminders"
-                android:nestedScrollingEnabled="false"
-                android:paddingBottom="80dp" />
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+        <!-- Selector de Color Principal -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/selectColor"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/change_color" />
 
+        <!-- Selector de Color Secundario (Para Cápsulas bicolores) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/selectSecondaryColor"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:text="Color secundario (Cápsula)" />
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/addReminder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="8dp"
-        android:clickable="true"
-        android:maxLines="2"
-        android:text="@string/add_reminder"
-        app:icon="@android:drawable/ic_menu_add" />
-
-</FrameLayout>
+    </LinearLayout>
+</ScrollView>
