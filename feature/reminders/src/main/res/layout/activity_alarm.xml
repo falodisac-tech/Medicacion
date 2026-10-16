@@ -1,7 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/alarmFragmentContainer"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/alarmRootLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="24dp"
+    android:background="#121212">
 
-</androidx.fragment.app.FragmentContainerView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Icono de la medicina en grande -->
+    <ImageView
+        android:id="@+id/ivMedicineIcon"
+        android:layout_width="160dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_pill_capsule"
+        android:contentDescription="Icono de medicina"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Nombre del medicamento -->
+    <TextView
+        android:id="@+id/reminderMedicineName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nombre del Medicamento"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:textAlignment="center"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Dosis -->
+    <TextView
+        android:id="@+id/reminderAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1 toma"
+        android:textSize="20sp"
+        android:textColor="#CCCCCC"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Etiqueta de instrucción (En ayunas, etc.) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardInstruction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="16dp"
+        app:cardBackgroundColor="#2E7D32"
+        app:strokeWidth="0dp"
+        android:layout_marginBottom="32dp">
+
+        <TextView
+            android:id="@+id/tvInstructionTag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="EN AYUNAS"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Botón Tomado -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/takenButton"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:text="TOMADO"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="#388E3C"
+        app:cornerRadius="16dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Botón Posponer -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/snoozeButton"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="POSPONER 10 MINUTOS"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="#F57C00"
+        app:cornerRadius="16dp"
+        android:layout_marginBottom="12dp" />
+
+</LinearLayout>
