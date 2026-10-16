@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="60dp"
+    android:viewportWidth="120"
+    android:viewportHeight="60">
+
+    <!-- Mitad izquierda de la cápsula (Color Primario) -->
+    <path
+        android:name="capsule_left"
+        android:fillColor="#E53935"
+        android:pathData="M 60,10 L 30,10 A 20,20 0 0,0 30,50 L 60,50 Z" />
+
+    <!-- Mitad derecha de la cápsula (Color Secundario) -->
+    <path
+        android:name="capsule_right"
+        android:fillColor="#FFFFFF"
+        android:pathData="M 60,10 L 90,10 A 20,20 0 0,1 90,50 L 60,50 Z" />
+
+    <!-- Borde sutil exterior para contraste sobre fondo oscuro o claro -->
+    <path
+        android:strokeColor="#66000000"
+        android:strokeWidth="2"
+        android:pathData="M 30,10 L 90,10 A 20,20 0 0,1 90,50 L 30,50 A 20,20 0 0,1 30,10 Z" />
+
+    <!-- Brillo/reflejo superior para darle volumen -->
+    <path
+        android:fillColor="#33FFFFFF"
+        android:pathData="M 30,14 L 90,14 A 16,16 0 0,1 98,20 L 22,20 A 16,16 0 0,1 30,14 Z" />
+
+</vector>
